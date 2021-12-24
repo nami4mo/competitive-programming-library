@@ -1,0 +1,13 @@
+.vscode
+.DS_Store
+
+*a.out
+*.code-workspace
+tempCodeRunnerFile.*
+
+paiza*
+*dsYM/
+target/
+Cargo.lock
+
+atcoder/

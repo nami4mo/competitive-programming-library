@@ -2,7 +2,6 @@
 from math import gcd
 def lcm(x, y): return (x * y) // gcd(x, y)
 
-
 ''' [分数] '''
 
 
@@ -18,7 +17,6 @@ class Frac:
     def __ge__(self, rh): return self.nume * rh.deno >= self.deno * rh.nume
     def __ne__(self, rh): return self.nume * rh.deno != self.deno * rh.nume
     def __repr__(self): return '{}/{}'.format(self.nume, self.deno)
-
 
 '''　[約数列挙]　'''
 n = 36
@@ -119,6 +117,7 @@ def p_factorization_osa_k(vl):
 
 
 ''' [不定方程式] ax + by = 1 '''
+# NOTICE: bが負の値のときバグってるっぽい。
 
 
 def ext_gcd(a, b, x, y):

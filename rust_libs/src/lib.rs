@@ -1,2 +1,2 @@
-pub mod math_extgcd;
-pub use math_extgcd::ext_gcd;
+pub mod math_mod;
+pub use math_mod::*;

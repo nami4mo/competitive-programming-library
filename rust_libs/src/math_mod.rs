@@ -69,6 +69,52 @@ pub fn ext_gcd(a: i64, b: i64, c: i64) -> Option<(i64, i64, i64, i64)> {
     Some((x, y, xd, yd))
 }
 
+/*
+    solve "ax = 1 (mod m)"
+    NOTICE: if m == 1 -> x = 0
+*/
+pub fn modinv(a: u64, m: u64) -> Option<u64> {
+    if num::integer::gcd(a, m) != 1 || m == 0 {
+        return None;
+    }
+    let m = m as i64;
+    let (mut x, _y) = _ext_gcd(a as i64, m);
+    x = ((x % m) + m) % m;
+    Some(x as u64)
+}
+
+/*
+    solve "ax = b (mod m)"
+    NOTICE: if m == 1 -> x = 0
+*/
+pub fn ax_b_mod_m(a: u64, mut b: u64, m: u64) -> Option<u64> {
+    if m == 0 {
+        return None;
+    }
+    if m == 1 {
+        return Some(0); // all x == all y (mod 1)
+    }
+    b %= m;
+    if a == 0 {
+        if b == 0 {
+            return Some(0);
+        }
+        return None;
+    }
+    let d = num::integer::gcd(a, m);
+    if d != 1 {
+        if b % d != 0 {
+            return None;
+        }
+    }
+    let (a, b, m) = (a / d, b / d, m / d);
+    let minv = modinv(a, m);
+    match minv {
+        None => None, // assert do not reach here. (modinv always exsits.)
+        Some(v) => Some((b * v) % m),
+    }
+}
+
 // https://atcoder.jp/contests/abc186/tasks/abc186_e
 // #[fastout]
 fn main() {
@@ -92,10 +138,7 @@ mod tests {
 
     #[test]
     fn test_extgcd_by_bruteforce() {
-        // let mut none_cnt = 0;
-        // let mut ok_cnt = 0;
         let nmax = 20;
-
         for a in -nmax..nmax {
             for b in -nmax..nmax {
                 for c in -nmax..nmax {
@@ -106,23 +149,71 @@ mod tests {
                                     assert!(a * x + b * y != c);
                                 }
                             }
-                            // none_cnt += 1;
                         }
                         Some(v) => {
                             let (x, y, xd, yd) = v;
-                            /* check if x is minimum non-negative integer (or xd==0)*/
                             assert!(x >= 0 || xd == 0);
                             assert!(x - xd < 0 || xd == 0);
                             for t in -3..3 {
                                 let val = a * (x + xd * t) + b * (y + yd * t);
                                 assert!(val == c, "{:?} -> {:?}", (a, b, c), v);
-                                // ok_cnt += 1;
                             }
                         }
                     }
                 }
             }
         }
-        // dbg!(ok_cnt, none_cnt);
+    }
+
+    #[test]
+    fn test_modinv() {
+        for a in 0..100 {
+            for m in 0..100 {
+                let minv = modinv(a, m);
+                match minv {
+                    None => {
+                        for i in 1..m {
+                            let val = (a * i) % m;
+                            assert!(val != 1);
+                        }
+                    }
+                    Some(v) => {
+                        assert!(v < m);
+                        assert!((v * a) % m == 1 % m, "a: {}, m: {}, minv: {}", a, m, v);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_ax_b_mod_m() {
+        let nmax = 50;
+        for a in 0..nmax {
+            for m in 0..nmax {
+                for b in 0..nmax {
+                    let x = ax_b_mod_m(a, b, m);
+                    match x {
+                        None => {
+                            for i in 1..m {
+                                let val = (a * i) % m;
+                                assert!(val != b, "a: {}, x: {}, b: {}, m: {}", a, i, b, m);
+                            }
+                        }
+                        Some(v) => {
+                            assert!(v < m);
+                            assert!(
+                                (a * v) % m == b % m,
+                                "a: {}, x: {}, b: {}, m: {}",
+                                a,
+                                v,
+                                b,
+                                m
+                            );
+                        }
+                    }
+                }
+            }
+        }
     }
 }

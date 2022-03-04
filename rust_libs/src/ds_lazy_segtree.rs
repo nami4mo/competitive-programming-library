@@ -6,7 +6,7 @@ pub struct SegTree<S, Op, F, Mapping, Composition>
 where
     S: Copy + std::fmt::Debug,
     Op: Fn(S, S) -> S,
-    F: Copy + std::cmp::PartialEq + std::fmt::Debug + std::fmt::Display,
+    F: Copy + std::cmp::PartialEq + std::fmt::Debug,
     Mapping: Fn(F, S) -> S,
     Composition: Fn(F, F) -> F,
 {
@@ -25,7 +25,7 @@ impl<S, Op, F, Mapping, Composition> SegTree<S, Op, F, Mapping, Composition>
 where
     S: Copy + std::fmt::Debug,
     Op: Fn(S, S) -> S,
-    F: Copy + std::cmp::PartialEq + std::fmt::Debug + std::fmt::Display,
+    F: Copy + std::cmp::PartialEq + std::fmt::Debug,
     Mapping: Fn(F, S) -> S,
     Composition: Fn(F, F) -> F,
 {

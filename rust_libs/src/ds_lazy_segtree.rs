@@ -4,7 +4,7 @@ use proconio::{fastout, input};
 
 pub struct SegTree<S, Op, F, Mapping, Composition>
 where
-    S: Copy + std::fmt::Debug + std::fmt::Display,
+    S: Copy + std::fmt::Debug,
     Op: Fn(S, S) -> S,
     F: Copy + std::cmp::PartialEq + std::fmt::Debug + std::fmt::Display,
     Mapping: Fn(F, S) -> S,
@@ -23,7 +23,7 @@ where
 
 impl<S, Op, F, Mapping, Composition> SegTree<S, Op, F, Mapping, Composition>
 where
-    S: Copy + std::fmt::Debug + std::fmt::Display,
+    S: Copy + std::fmt::Debug,
     Op: Fn(S, S) -> S,
     F: Copy + std::cmp::PartialEq + std::fmt::Debug + std::fmt::Display,
     Mapping: Fn(F, S) -> S,
@@ -113,7 +113,11 @@ where
     pub fn apply(&mut self, l: usize, r: usize, f: F) {
         self.apply_rec(l, r, f, 1, 0, self.size);
     }
-    pub fn print_vals(&self) {
+    pub fn print_vals(&mut self) {
+        // update leaf vals
+        for i in 0..self.n {
+            self.prod(i, i + 1);
+        }
         println!(
             "{:?}",
             self.data[self.size..self.size + self.n]
@@ -154,5 +158,45 @@ fn main() {
     println!("{}", ans.len());
     for &a in &ans {
         println!("{}", a);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn lst_test_1() {
+        type P = (i64, i64);
+
+        let op = |a: P, b: P| (a.0 + b.0, a.1 + b.1);
+        let e = (0, 0);
+        let id = std::i64::MAX;
+        let mapping = |f: i64, x: P| {
+            if f == id {
+                x
+            } else {
+                (f * x.1, x.1)
+            }
+        };
+        let composition = |f: i64, g: i64| {
+            if f == id {
+                g
+            } else {
+                f
+            }
+        };
+        let al = vec![(1, 1), (2, 1), (3, 1), (4, 1), (5, 1)];
+        let mut seg = SegTree::new_from_vec(&al, e, op, id, mapping, composition);
+        assert!(seg.prod(0, 5).0 == 15);
+
+        seg.apply(1, 3, 10);
+        assert!(seg.prod(0, 3).0 == 21);
+
+        seg.apply(2, 4, -5);
+        assert!(seg.prod(0, 5).0 == 6);
+
+        seg.apply(0, 1, -100);
+        assert!(seg.prod(0, 5).0 == -95);
     }
 }

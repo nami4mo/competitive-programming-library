@@ -1,48 +1,74 @@
 #![allow(unused_imports)]
-use libm::sqrt;
-use num_integer::Roots;
-use proconio::{fastout, input, marker::Chars, marker::Usize1};
+use im_rc::HashMap;
+use proconio::marker::{Chars, Usize1};
+use proconio::{fastout, input};
+use rand_distr::Uniform;
 
-fn l_to_i(x: &Vec<u64>) -> u64 {
-    let mut res = 0;
-    let mut ten = 1;
-    for i in 0..x.len() {
-        res += ten * x[x.len() - 1 - i];
-        ten *= 10;
-    }
-    res
+pub struct UnionFind {
+    n: usize,
+    parent_or_size: Vec<i32>,
 }
 
-fn main() {
-    input! {
-        //
-        xx: Chars,
-    }
-    let x = xx
-        .iter()
-        .map(|x| x.to_digit(10).unwrap() as u64)
-        .collect::<Vec<_>>();
-    let xv = l_to_i(&x);
-    let mut ans = 1e19 as u64;
-    for neib in 0..2 {
-        for d in -10..10 {
-            let mut new_vec = vec![];
-            let mut ok = true;
-            for i in 0..x.len() {
-                let v = x[0] as i64 + i as i64 * d - neib;
-                if v >= 10 || v < 0 {
-                    ok = false;
-                    break;
-                }
-                new_vec.push(v as u64);
-            }
-            if ok {
-                let val = l_to_i(&new_vec);
-                if val >= xv {
-                    ans = ans.min(val);
-                }
-            }
+impl UnionFind {
+    pub fn new(n: usize) -> Self {
+        UnionFind {
+            n,
+            parent_or_size: vec![-1; n],
         }
     }
-    println!("{}", ans);
+    pub fn leader(&mut self, x: usize) -> usize {
+        if self.parent_or_size[x] < 0 {
+            return x as usize;
+        } else {
+            self.parent_or_size[x] = self.leader(self.parent_or_size[x] as usize) as i32;
+            return self.parent_or_size[x] as usize;
+        }
+    }
+    pub fn merge(&mut self, x: usize, y: usize) -> usize {
+        let mut x = self.leader(x);
+        let mut y = self.leader(y);
+        if x == y {
+            return x;
+        }
+        if -self.parent_or_size[x] < -self.parent_or_size[y] {
+            std::mem::swap(&mut x, &mut y);
+        }
+        self.parent_or_size[x] += self.parent_or_size[y];
+        self.parent_or_size[y] = x as i32;
+        x
+    }
+    pub fn same(&mut self, x: usize, y: usize) -> bool {
+        self.leader(x) == self.leader(y)
+    }
+    pub fn size(&mut self, x: usize) -> usize {
+        let leader = self.leader(x);
+        -self.parent_or_size[leader] as usize
+    }
+    pub fn groups(&mut self) -> Vec<Vec<usize>> {
+        let mut res = vec![vec![]; self.n];
+        for i in 0..self.n {
+            let leader = self.leader(i);
+            res[leader].push(i);
+        }
+        res.into_iter()
+            .filter(|x| !x.is_empty())
+            .collect::<Vec<_>>()
+    }
+}
+
+// #[fastout]
+fn main() {
+    input! {
+        n: usize, q: usize,
+        lrs: [(usize, usize); q]
+    }
+    let mut uf = UnionFind::new(n + 1);
+    for &(l, r) in &lrs {
+        uf.merge(l - 1, r);
+    }
+    if uf.same(0, n) {
+        println!("Yes");
+    } else {
+        println!("No");
+    }
 }

@@ -20,3 +20,28 @@ fn main() {
         }
     });
 }
+
+// https://atcoder.jp/contests/abc241/tasks/abc241_d
+// BTreeSet で 二分探索
+// range() で 取得したい範囲を指定 -> その範囲のイテレータが返ってくる
+// 後ろから見たければ（大きい順から見たければ） rev()
+// nth(k) で k番目の値を取得 (k: 0-indexed)
+fn btreeset_bisect() {
+    input! {q: usize}
+    let mut st = BTreeSet::new();
+    for i in 0..q {
+        input! {qq: usize}
+        if qq == 1 {
+            input! {x: i64}
+            st.insert((x, i));
+        } else if qq == 2 {
+            input! {x: i64, k: Usize1}
+            let ans = st.range(..=(x, q)).rev().nth(k).map_or(-1, |v| v.0);
+            println!("{}", ans);
+        } else {
+            input! {x: i64, k: Usize1}
+            let ans = st.range((x, 0)..).nth(k).map_or(-1, |v| v.0);
+            println!("{}", ans);
+        }
+    }
+}

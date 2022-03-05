@@ -30,21 +30,21 @@ impl MaxFlowDinic {
     }
 
     pub fn add_edge(&mut self, from: usize, to: usize, cap: u64) -> usize {
-        let rev = self.edges[to].len();
+        let to_rev = self.edges[to].len();
+        let from_rev = self.edges[from].len();
         self.edges_pos.push((from, self.edges[from].len()));
         self.edges[from].push(Edge {
             from,
             to,
             cap,
-            rev,
+            rev: to_rev,
             flow: 0,
         });
-        let rev = self.edges[from].len();
         self.edges[to].push(Edge {
-            from: to,
+            from,
             to: from,
             cap: 0,
-            rev,
+            rev: from_rev,
             flow: 0,
         });
         self.edges_pos.len() - 1
@@ -76,7 +76,7 @@ impl MaxFlowDinic {
             let mut iter = vec![0; self.n];
             loop {
                 let f = self.dfs(s, t, std::u64::MAX, &mut iter, &level);
-                if f <= 0 {
+                if f == 0 {
                     break;
                 }
                 flow += f;
@@ -107,7 +107,7 @@ impl MaxFlowDinic {
         q.push_back(s);
         level[s] = 0;
         while let Some(poped) = q.pop_front() {
-            for &edge in &self.edges[poped] {
+            for edge in &self.edges[poped] {
                 if level[edge.to] == -1 && edge.cap > 0 {
                     level[edge.to] = level[poped] + 1;
                     q.push_back(edge.to);
@@ -121,25 +121,21 @@ impl MaxFlowDinic {
         if v == t {
             return up;
         };
-        let mut res = 0;
-        for i in ite[v]..self.edges[v].len() {
-            let e = self.edges[v][i];
-            ite[v] = i + 1; // i?
-            if e.cap <= 0 || level[v] >= level[e.to] {
-                continue;
+        while ite[v] < self.edges[v].len() {
+            let e = self.edges[v][ite[v]];
+            let up = up.min(e.cap);
+            if up > 0 && level[v] < level[e.to] {
+                let d = self.dfs(e.to, t, up, ite, level);
+                if d > 0 {
+                    let rev = self.edges[v][ite[v]].rev;
+                    self.edges[v][ite[v]].cap -= d;
+                    self.edges[e.to][rev].cap += d;
+                    return d;
+                }
             }
-            let d = self.dfs(e.to, t, up.min(e.cap) - res, ite, level);
-            if d <= 0 {
-                continue;
-            }
-            self.edges[v][i].cap -= d;
-            self.edges[e.to][e.rev].cap += d;
-            res += d;
-            if res == up {
-                break;
-            }
+            ite[v] += 1;
         }
-        res
+        0
     }
 }
 

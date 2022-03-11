@@ -40,6 +40,7 @@ jobs:
         working-directory: ./tools/docs_generator/docs
         run: |
            mkdocs build
+           cat mkdocs.yml
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3

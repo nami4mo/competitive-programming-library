@@ -1,7 +1,11 @@
-fn main() {
-    // 文字の距離
+// @doc.begin [Rust/util] {Util}
+
+fn char_util() {
+    // @doc.subtitle {文字の距離}
+    // @doc.src.begin
     let ch = 'F';
     let d = ch as u32 - 'A' as u32;
+    // @doc.src.end
 
     // sort by ...
     input! {n: usize, al: [i64; n], bl: [i64; n]}

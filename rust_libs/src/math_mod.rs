@@ -1,8 +1,11 @@
 #![allow(unused_imports, dead_code, unused_macros)]
+use num_integer::gcd;
 use proconio::marker::{Chars, Usize1};
 use proconio::{fastout, input};
 use std::collections::VecDeque;
 
+// @doc.begin [Rust/Math/integer] {Integer}
+// @doc.src_c.begin
 // ax + by = 1
 fn _ext_gcd(a: i64, b: i64) -> (i64, i64) {
     if b == 0 {
@@ -110,14 +113,50 @@ pub fn ax_b_mod_m(a: u64, mut b: u64, m: u64) -> Option<u64> {
     let (a, b, m) = (a / d, b / d, m / d);
     let minv = modinv(a, m);
     match minv {
-        None => None, // assert do not reach here. (modinv always exsits.)
+        None => panic!("something wrong. modinv always exists."),
         Some(v) => Some((b * v) % m),
     }
 }
+// @doc.src_c.end
 
-// https://atcoder.jp/contests/abc186/tasks/abc186_e
-// #[fastout]
-fn main() {
+/* @doc.text.begin
+## 使い方
+注) `a = 0` などの例外的なケースは別途処理したほうが無難
+注) Rust の mod演算（`%`） は、左辺が負のときは負を返すので注意
+
+
+### ext_gcd ( ax + by = c )
+```rs
+fn ext_gcd(a: i64, b: i64, c: i64) -> Option<(i64, i64, i64, i64)>
+```
+
+- 解なしのときは `None`
+- 解ありのときは `Some(x0, y0, xd, yd)`
+    - `x = x0 + xd*t`, `y = y0 + yd*t`
+    - `x0` は最小の 非負整数
+    - ただし、`x` が 負の値しか取らない時はその値を返す（3x + 0y = 15 など）
+
+### ax_b_mod_m ( ax = b (mod m) )
+```rs
+fn ax_b_mod_m(a: u64, mut b: u64, m: u64) -> Option<u64>
+```
+
+- 解なしのときは `None`
+- 解ありのときは `Some(x)  (x < m)`
+
+### modinv ( a の逆元 (mod m) )
+```rs
+fn modinv(a: u64, m: u64) -> Option<u64>
+```
+
+
+
+@doc.text.end */
+
+// @doc.subtitle {例題: ext_gcd}
+// @doc.text.inline [ABC186-E](https://atcoder.jp/contests/abc186/tasks/abc186_e): kx + (-n)y = -s を満たす最小の非負整数 x を求める問題に帰着する
+// @doc.src.begin
+fn solve_ext_gcd() {
     input! {t: usize}
     for _ in 0..t {
         input! {n: i64, s: i64, k: i64}
@@ -131,89 +170,48 @@ fn main() {
         }
     }
 }
+// @doc.src.end
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_extgcd_by_bruteforce() {
-        let nmax = 20;
-        for a in -nmax..nmax {
-            for b in -nmax..nmax {
-                for c in -nmax..nmax {
-                    match ext_gcd(a, b, c) {
-                        None => {
-                            for x in -nmax..nmax {
-                                for y in -nmax..nmax {
-                                    assert!(a * x + b * y != c);
-                                }
-                            }
-                        }
-                        Some(v) => {
-                            let (x, y, xd, yd) = v;
-                            assert!(x >= 0 || xd == 0);
-                            assert!(x - xd < 0 || xd == 0);
-                            for t in -3..3 {
-                                let val = a * (x + xd * t) + b * (y + yd * t);
-                                assert!(val == c, "{:?} -> {:?}", (a, b, c), v);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    #[test]
-    fn test_modinv() {
-        for a in 0..100 {
-            for m in 0..100 {
-                let minv = modinv(a, m);
-                match minv {
-                    None => {
-                        for i in 1..m {
-                            let val = (a * i) % m;
-                            assert!(val != 1);
-                        }
-                    }
-                    Some(v) => {
-                        assert!(v < m);
-                        assert!((v * a) % m == 1 % m, "a: {}, m: {}, minv: {}", a, m, v);
-                    }
-                }
-            }
-        }
-    }
-
-    #[test]
-    fn test_ax_b_mod_m() {
-        let nmax = 50;
-        for a in 0..nmax {
-            for m in 0..nmax {
-                for b in 0..nmax {
-                    let x = ax_b_mod_m(a, b, m);
-                    match x {
-                        None => {
-                            for i in 1..m {
-                                let val = (a * i) % m;
-                                assert!(val != b, "a: {}, x: {}, b: {}, m: {}", a, i, b, m);
-                            }
-                        }
-                        Some(v) => {
-                            assert!(v < m);
-                            assert!(
-                                (a * v) % m == b % m,
-                                "a: {}, x: {}, b: {}, m: {}",
-                                a,
-                                v,
-                                b,
-                                m
-                            );
-                        }
-                    }
-                }
+// @doc.subtitle {例題: ax_b_mod_m}
+// @doc.text.inline [ABC186-E](https://atcoder.jp/contests/abc186/tasks/abc186_e): ↑と同じ問題を kx = n - s (mod n)  で解く
+// @doc.src.begin
+fn solve_ax_b_mod_m() {
+    input! {t: usize}
+    for _ in 0..t {
+        input! {n: u64, s: u64, k: u64}
+        let v = ax_b_mod_m(k, n - s, n);
+        match v {
+            None => println!("-1"),
+            Some(x) => {
+                println!("{}", x);
             }
         }
     }
 }
+// @doc.src.end
+
+// @doc.subtitle {例題: modinv}
+// @doc.text.inline [ABC186-E](https://atcoder.jp/contests/abc186/tasks/abc186_e): ↑と同じ問題を kの逆元（mod n） を両辺にかけて解く
+// @doc.src.begin
+fn solve_modinv() {
+    input! {t: usize}
+    for _ in 0..t {
+        input! {n: u64, s: u64, k: u64}
+        // k と n が互いに素でないと逆元が存在しない
+        let g = gcd(k, n);
+        if (n - s) % g != 0 {
+            println!("-1");
+            continue;
+        }
+        // 以降、全てを k と n の GCD で割った値
+        let kinv = modinv(k / g, n / g);
+        match kinv {
+            None => println!("-1"),
+            Some(kinv) => {
+                let ans = ((n - s) * kinv / g) % (n / g);
+                println!("{}", ans);
+            }
+        }
+    }
+}
+// @doc.src.end

@@ -1,7 +1,9 @@
 #![allow(unused_imports)]
 use proconio::{fastout, input};
 
-pub struct SegTree<S: Copy + std::fmt::Debug + std::fmt::Display, F: Fn(S, S) -> S> {
+// @doc.begin [Rust/segtree] {SegTree}
+// @doc.src_c.begin
+pub struct SegTree<S: Copy + std::fmt::Debug, F: Fn(S, S) -> S> {
     n: usize,      // the size of the original elements
     e: S,          // identity element
     op: F,         //
@@ -9,7 +11,7 @@ pub struct SegTree<S: Copy + std::fmt::Debug + std::fmt::Display, F: Fn(S, S) ->
     nodes: Vec<S>, // 1-indexed (ignore 0)
 }
 
-impl<S: Copy + std::fmt::Debug + std::fmt::Display, F: Fn(S, S) -> S> SegTree<S, F> {
+impl<S: Copy + std::fmt::Debug, F: Fn(S, S) -> S> SegTree<S, F> {
     pub fn new(n: usize, e: S, op: F) -> Self {
         Self::new_from_vec(&vec![e; n], e, op)
     }
@@ -70,9 +72,36 @@ impl<S: Copy + std::fmt::Debug + std::fmt::Display, F: Fn(S, S) -> S> SegTree<S,
         );
     }
 }
+// @doc.src_c.end
 
-// https://atcoder.jp/contests/abc185/tasks/abc185_f
-#[fastout]
+/* @doc.text.begin
+## 使い方
+
+### 初期化
+
+```rs
+let mut seg = SegTree::new_from_vec(&vals: Vec<S>, e: S, op: F);
+```
+
+- `vals`: 初期の `Vec`
+- `e`: 単位元（例: 区間加算なら `0`、区間 min なら `INF`）
+- `op`: 二項演算（例: 区間加算なら `|a,b| a+b`）
+
+### 更新
+```rs
+seg.update(index, value)
+```
+
+### 値取得
+```rs
+seg.prod(left, right)  # [left, right)
+```
+
+@doc.text.end */
+
+// @doc.subtitle {例題}
+// @doc.text.inline [ABC185-F](https://atcoder.jp/contests/abc185/tasks/abc185_f): 区間のXOR取得 & 1点更新
+// @doc.src.begin
 fn main() {
     input! {
         n: usize, q: usize,
@@ -94,3 +123,6 @@ fn main() {
         }
     }
 }
+
+// @doc.src.end
+// @doc.end

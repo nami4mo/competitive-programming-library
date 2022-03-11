@@ -1,8 +1,12 @@
 #![allow(unused_imports)]
+#![allow(dead_code)]
+use itertools::Itertools;
 use proconio::marker::{Chars, Usize1};
 use proconio::{fastout, input};
 
-pub struct SegTree<S, Op, F, Mapping, Composition>
+// @doc.begin [Rust/lazy_segtree] {LazySegTree}
+// @doc.src_c.begin
+pub struct LazySegTree<S, Op, F, Mapping, Composition>
 where
     S: Copy + std::fmt::Debug,
     Op: Fn(S, S) -> S,
@@ -21,7 +25,7 @@ where
     id: F,                    // id(x) -> x
 }
 
-impl<S, Op, F, Mapping, Composition> SegTree<S, Op, F, Mapping, Composition>
+impl<S, Op, F, Mapping, Composition> LazySegTree<S, Op, F, Mapping, Composition>
 where
     S: Copy + std::fmt::Debug,
     Op: Fn(S, S) -> S,
@@ -52,7 +56,7 @@ where
         for i in (1..size).rev() {
             data[i] = op(data[i * 2], data[i * 2 + 1]);
         }
-        SegTree {
+        LazySegTree {
             n,
             e,
             op,
@@ -126,10 +130,40 @@ where
         );
     }
 }
+// @doc.src_c.end
+/* @doc.text.begin
+## 使い方
 
-// https://atcoder.jp/contests/arc045/tasks/arc045_b
-#[fastout]
-fn main() {
+### 初期化
+
+```rs
+let mut seg = LazySegTree::new_from_vec(&vals, e, op, id, mapping, composition);
+```
+
+- `vals`: 初期の `Vec`
+- `e`: 二項演算の単位元（例: 区間加算なら `0`、区間 min なら `INF`）
+- `op`: 二項演算（例: 区間加算なら `|a,b| a+b`）
+- `id`: マッピングの恒等写像（区間加算更新なら `0`、区間変更ならあり得ない値 `INF`）
+- `mapping`: 区間操作演算
+- `composition`: 写像の合成（`|f,g| f(g(x))`）
+
+
+### 更新
+```rs
+seg.apply(left, right, f)  # [left, right)
+```
+
+### 値取得
+```rs
+seg.prod(left, right)  # [left, right)
+```
+
+@doc.text.end */
+
+// @doc.subtitle {例題}
+// @doc.text.inline [ARC045-B](https://atcoder.jp/contests/arc045/tasks/arc045_b): 区間加算更新 & 区間最小値取得
+// @doc.src.begin
+fn solve() {
     input! {
         n: usize, m: usize,
         stl: [(Usize1, Usize1); m],
@@ -139,7 +173,7 @@ fn main() {
     let id: i64 = 0;
     let mapping = |f, x| f + x;
     let composition = |f, g| f + g;
-    let mut seg = SegTree::new_from_vec(&vec![0; n], e, op, id, mapping, composition);
+    let mut seg = LazySegTree::new_from_vec(&vec![0; n], e, op, id, mapping, composition);
 
     for &(s, t) in &stl {
         seg.apply(s, t + 1, 1);
@@ -160,15 +194,52 @@ fn main() {
         println!("{}", a);
     }
 }
+// @doc.src.end
+
+// @doc.subtitle {例題}
+// @doc.text.inline 区間加算更新 & 区間加算取得
+// @doc.src.begin
+fn solve2() {
+    type P = (i64, i64);
+    let vals = [1, 2, 3, 4, 5];
+    let vals = vals.iter().map(|&v| (v, 1)).collect_vec();
+    let op = |a: P, b: P| (a.0 + b.0, a.1 + b.1);
+    let e = (0, 0);
+    let id = std::i64::MAX;
+    let mapping = |f: i64, x: P| {
+        if f == id {
+            x
+        } else {
+            (f * x.1, x.1)
+        }
+    };
+    let composition = |f: i64, g: i64| {
+        if f == id {
+            g
+        } else {
+            f
+        }
+    };
+    let mut seg = LazySegTree::new_from_vec(&vals, e, op, id, mapping, composition);
+    assert!(seg.prod(0, 5).0 == 15);
+    seg.apply(1, 3, 10);
+    assert!(seg.prod(0, 3).0 == 21);
+    seg.apply(2, 4, -5);
+    assert!(seg.prod(0, 5).0 == 6);
+    seg.apply(0, 1, -100);
+    assert!(seg.prod(0, 5).0 == -95);
+}
+// @doc.src.end
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn lst_test_1() {
         type P = (i64, i64);
 
+        let vals = [1, 2, 3, 4, 5];
+        let vals = vals.iter().map(|&v| (v, 1)).collect_vec();
         let op = |a: P, b: P| (a.0 + b.0, a.1 + b.1);
         let e = (0, 0);
         let id = std::i64::MAX;
@@ -186,16 +257,12 @@ mod tests {
                 f
             }
         };
-        let al = vec![(1, 1), (2, 1), (3, 1), (4, 1), (5, 1)];
-        let mut seg = SegTree::new_from_vec(&al, e, op, id, mapping, composition);
+        let mut seg = LazySegTree::new_from_vec(&vals, e, op, id, mapping, composition);
         assert!(seg.prod(0, 5).0 == 15);
-
         seg.apply(1, 3, 10);
         assert!(seg.prod(0, 3).0 == 21);
-
         seg.apply(2, 4, -5);
         assert!(seg.prod(0, 5).0 == 6);
-
         seg.apply(0, 1, -100);
         assert!(seg.prod(0, 5).0 == -95);
     }

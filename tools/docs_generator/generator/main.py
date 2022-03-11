@@ -161,12 +161,7 @@ class Docs:
             mk_yml = yaml.safe_load(f)
         nav_dir = {}
         nav_list = []
-        for key, value in self._doc_str_dic.items():
-            doc_dir = '/'.join(f'{DOCS_MD_DIR}/{key}'.split('/')[:-1])
-            subprocess.run(f'mkdir -p {doc_dir}', shell=True)
-            with open(f'{DOCS_MD_DIR}/{key}.md', 'w') as f:
-                doc_str = ''.join(value)
-                f.write(doc_str)
+        for key in self._doc_str_dic.keys():
             keys = key.split('/')
             _insert_dic_rec(nav_dir, keys)
         nav_list = _construct_list_rec(nav_dir, '', [])

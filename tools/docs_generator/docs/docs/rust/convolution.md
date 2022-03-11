@@ -1,7 +1,10 @@
 # Convolution (ACL-RS)
-<details><summary>Source Code</summary>
+Thanks! [ac-library-rs](https://github.com/rust-lang-ja/ac-library-rs/blob/master/src/convolution.rs)
+  <details><summary>Source Code</summary>
 
 ```rs
+//https://github.com/rust-lang-ja/ac-library-rs
+
 pub mod convolution {
     macro_rules! modulus {
     ($($name:ident),*) => {

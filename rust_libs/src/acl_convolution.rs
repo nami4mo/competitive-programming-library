@@ -1,7 +1,8 @@
+// @doc.begin [Rust/convolution] {Convolution (ACL-RS)}
+// @doc.text.inline Thanks! [ac-library-rs](https://github.com/rust-lang-ja/ac-library-rs/blob/master/src/convolution.rs)
+// @doc.src_c.begin
 //https://github.com/rust-lang-ja/ac-library-rs
 
-// @doc.begin [Rust/convolution] {Convolution (ACL-RS)}
-// @doc.src_c.begin
 pub mod convolution {
     macro_rules! modulus {
     ($($name:ident),*) => {

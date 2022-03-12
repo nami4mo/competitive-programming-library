@@ -6,9 +6,23 @@ use std::collections::BTreeSet;
 // @doc.begin [Rust/median] {Median}
 // @doc.src_c.begin
 struct Med<T: Copy + std::fmt::Debug + Ord> {
-    l_st: BTreeSet<T>,
-    r_st: BTreeSet<T>,
+    l_st: BTreeSet<T>, // 左半分（中央値以下）
+    r_st: BTreeSet<T>, // 右半分（中央値以上）
 }
+
+/*
+    常に
+    (A) l_st.len() - 1 == r_st.len()
+    (B) l_st.len() == r_st.len()
+    のどちらかの状態になる
+
+    (A) のときは要素が奇数個で
+    l_st.iter().last() が唯一の中央値
+
+    (B) のときは要素が偶数個で
+    l_st.iter().last() と r_st.iter().next() が中央値（の候補）
+    問題によって どちらかが中央値になる or 平均をとる などが変わるので注意
+*/
 
 impl<T: Copy + std::fmt::Debug + Ord> Med<T> {
     pub fn new() -> Self {
@@ -68,9 +82,12 @@ impl<T: Copy + std::fmt::Debug + Ord> Med<T> {
 // @doc.src_c.end
 
 /* @doc.text.begin
+挿入/削除しながら中央値を管理するデータ構造。
+
 ## 使い方
-`Med<T: Copy + std::fmt::Debug + Ord>`
-**多重集合ではないので、同じ値を扱うときは `index` 込みの `tuple` にするなど工夫する。**
+- `Med<T: Copy + std::fmt::Debug + Ord>`
+- **多重集合ではないので、同じ値を扱うときは `index` 込みの `tuple` にするなど工夫する**
+- 中央値の定義に応じて `get_med()` の処理を変えるとよい
 
 ### 初期化
 
@@ -94,14 +111,15 @@ med.remove(x: T)
 let (v1, v2) = med.get_med();
 ```
 
-- 要素数が偶数のとき: v1 == v2（中央の要素）
-- 要素数が奇数のとき: v1 != v2（中央の左右の要素）
+- 要素数が奇数のとき: v1 == v2（中央の要素）
+- 要素数が偶数のとき: v1 != v2（中央の左右の要素）
 
 @doc.text.end */
 
+// @doc.subtitle {例題}
+// @doc.text.inline [ABC218-G](https://atcoder.jp/contests/abc185/tasks/abc218_g): 木をDFSで辿りながら集合の中央値を管理する
+// @doc.src.begin
 const INF: u64 = !0;
-
-// #[fastout]
 fn main() {
     input! {
         n: usize,
@@ -149,3 +167,4 @@ fn main() {
     let ans = dfs(0, !0, &gl, &mut med, &al, 0);
     println!("{}", ans);
 }
+// @doc.src.end

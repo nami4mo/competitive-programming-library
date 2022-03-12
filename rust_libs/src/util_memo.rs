@@ -7,6 +7,14 @@ fn char_util() {
     let d = ch as u32 - 'A' as u32;
     // @doc.src.end
 
+    // @doc.subtitle {文字の距離}
+    // @doc.src.begin
+    let c = (2 as u8 + 'a' as u8) as char;
+    let z = (25 as u8 + 'a' as u8) as char;
+    assert_eq!(c, 'c');
+    assert_eq!(z, 'z');
+    // @doc.src.end
+
     // sort by ...
     input! {n: usize, al: [i64; n], bl: [i64; n]}
     let mut abil = vec![];

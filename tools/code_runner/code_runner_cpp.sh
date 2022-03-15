@@ -9,7 +9,7 @@ filename=$2
 exe_file="$3.a.out"
 
 cd $dir # dir
-g++ $filename -std=c++17 -I${HOME}/Desktop/competitive-programming/ -o $exe_file
+g++ $filename -std=c++17 -I${HOME}/Desktop/competitive-programming/Library/cpp_libs/ -o $exe_file
 
 if [ -s $input_file ]; then
     "./$exe_file" < $input_file

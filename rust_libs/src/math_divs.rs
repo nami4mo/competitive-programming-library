@@ -2,6 +2,37 @@
 use proconio::marker::{Chars, Usize1};
 use proconio::{fastout, input};
 
+// fn osa_k(vl: &Vec<usize>) -> Vec<HashMap<usize, usize>> {
+fn osa_k(vl: &Vec<usize>) -> Vec<Vec<(usize, usize)>> {
+    if vl.is_empty() {
+        return vec![];
+    }
+    let vmax = *vl.iter().max().unwrap();
+    let mut min_primes = (0..vmax + 1).map(|i| i).collect_vec();
+    for prime in 2..vmax.sqrt() + 1 {
+        if min_primes[prime] != prime {
+            continue; // not prime
+        }
+        let mut curr = prime;
+        while curr <= vmax {
+            min_primes[curr] = min_primes[curr].min(prime);
+            curr += prime;
+        }
+    }
+    vl.iter()
+        .map(|&v| {
+            let mut pf_cnt = HashMap::new();
+            let mut curr = v;
+            while curr > 1 {
+                let min_p = min_primes[curr];
+                *pf_cnt.entry(min_p).or_insert(0) += 1;
+                curr /= min_p;
+            }
+            pf_cnt.iter().map(|&k| k).collect() // into tuple
+        })
+        .collect()
+}
+
 /* 約数列挙 */
 fn divs(n: u64) -> Vec<u64> {
     let mut res = vec![];

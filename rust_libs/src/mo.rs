@@ -30,13 +30,14 @@ use proconio::{fastout, input};
 */
 
 struct Mo {
-    // [0] change vals type (if necessary) !!!!!!
-    vals: Vec<usize>,
-    cl: usize,
-    cr: usize,
     // [1] add info for ans !!!!!!!
     // cnts: Vec<usize>,
     // pair_cnt: usize,
+
+    //// [0] change vals type (if necessary) !!!!!!
+    vals: Vec<usize>,
+    cl: usize,
+    cr: usize,
 }
 
 impl Mo {
@@ -73,53 +74,52 @@ impl Mo {
     }
 
     fn process_query(&mut self, l: usize, r: usize) {
-        if self.cr < r {
-            for i in self.cr..r {
-                self.add(i);
-            }
-        } else if r < self.cr {
-            for i in (r..self.cr).rev() {
-                self.delete(i);
-            }
+        while l < self.cl {
+            self.cl -= 1;
+            self.add(self.cl);
         }
-        if self.cl < l {
-            for i in self.cl..l {
-                self.delete(i);
-            }
-        } else if l < self.cl {
-            for i in (l..self.cl).rev() {
-                self.add(i);
-            }
+        while self.cr < r {
+            self.add(self.cr);
+            self.cr += 1;
+        }
+        while self.cl < l {
+            self.delete(self.cl);
+            self.cl += 1;
+        }
+        while r < self.cr {
+            self.cr -= 1;
+            self.delete(self.cr);
         }
         self.cl = l;
         self.cr = r;
     }
 
     // [4] (if necessary) change ans vec type !!!!!!!!!!!!
-    pub fn process_all(&mut self, queries: Vec<(usize, usize)>) -> Vec<i64> {
+    pub fn process_all(&mut self, queries: &Vec<(usize, usize)>) -> Vec<bool> {
         let bucket_size = self.vals.len().sqrt() + 1;
         let mut buckets = vec![vec![]; bucket_size + 1];
         for (qi, &(l, r)) in queries.iter().enumerate() {
             buckets[l / bucket_size].push((l, r, qi));
         }
-        for bucket in &mut buckets {
+        for (i, bucket) in buckets.iter_mut().enumerate() {
             bucket.sort_by_key(|v| v.1);
+            if i % 2 == 1 {
+                bucket.reverse();
+            }
         }
 
         // [5] init ans vec !!!!!!!!!!!!
-        // let mut ans = vec![-1; queries.len()];
+        let mut ans = vec![false; queries.len()];
 
         for bucket in &buckets {
             for &(l, r, qi) in bucket {
                 self.process_query(l, r);
-
                 // [6] set ans !!!!!!!!!
-                // ans[qi] = self.pair_cnt as i64;
+                ans[qi] = self.ng_cnt == 0;
             }
         }
         // [7] return ans !!!!!!
-        // ans
-        vec![]
+        ans
     }
 }
 

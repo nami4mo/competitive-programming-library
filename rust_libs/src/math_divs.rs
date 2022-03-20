@@ -1,15 +1,18 @@
 #![allow(unused_imports)]
-use im_rc::HashMap;
 use itertools::Itertools;
 use num_integer::Roots;
 use proconio::marker::{Chars, Usize1};
 use proconio::{fastout, input};
+use std::collections::HashMap;
 
 // @doc.begin [Rust/Math/divisor] {Divisor}
 // @doc.src_c.begin
 // Vec<HashMap> で返したい場合は、こちらの宣言に変える
 // fn osa_k(vl: &Vec<usize>) -> Vec<HashMap<usize, usize>> {
 fn osa_k(vl: &Vec<usize>) -> Vec<Vec<(usize, usize)>> {
+    use num_integer::Roots;
+    use std::collections::HashMap;
+
     if vl.is_empty() {
         return vec![];
     }
@@ -27,19 +30,21 @@ fn osa_k(vl: &Vec<usize>) -> Vec<Vec<(usize, usize)>> {
     }
     vl.iter()
         .map(|&v| {
-            let mut pf_cnt = HashMap::new();
+            let mut pf_cnt = HashMap::<usize, usize>::new();
             let mut curr = v;
             while curr > 1 {
                 let min_p = min_primes[curr];
                 *pf_cnt.entry(min_p).or_insert(0) += 1;
                 curr /= min_p;
             }
-            pf_cnt.iter().map(|&k| k).collect() // into tuple
+            pf_cnt.iter().map(|(k, v)| (*k, *v)).collect() // into tuple
         })
         .collect()
 }
 
 fn prime_fac_perm(n: usize, k: usize) -> HashMap<usize, usize> {
+    use num_integer::Roots;
+
     let mut p_facs = HashMap::new();
     let start = n - k + 1;
     let half = k.max(n.sqrt() + 1);
@@ -80,8 +85,10 @@ fn prime_fac_perm(n: usize, k: usize) -> HashMap<usize, usize> {
 
 /* 約数列挙 */
 fn divs(n: usize) -> Vec<usize> {
+    use num_integer::Roots;
+
     let mut res = vec![];
-    let sq = num_integer::sqrt(n);
+    let sq = n.sqrt();
     for i in 1..sq + 1 {
         if n % i == 0 {
             res.push(i);
@@ -96,6 +103,8 @@ fn divs(n: usize) -> Vec<usize> {
 
 /* 素因数分解 */
 fn prime_fac(mut n: usize) -> Vec<(usize, usize)> {
+    use num_integer::Roots;
+
     let mut res = vec![];
     if n == 1 {
         return res;
@@ -128,6 +137,7 @@ fn euler_totient(n: usize) -> usize {
     }
     ans as usize
 }
+
 // @doc.src_c.end
 
 /* @doc.text.begin

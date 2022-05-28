@@ -197,7 +197,7 @@ fn solve() {
 // @doc.src.end
 
 // @doc.subtitle {例題}
-// @doc.text.inline 区間加算更新 & 区間加算取得
+// @doc.text.inline 区間更新 & 区間加算取得
 // @doc.src.begin
 fn solve2() {
     type P = (i64, i64);

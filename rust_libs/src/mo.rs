@@ -115,7 +115,7 @@ impl Mo {
             for &(l, r, qi) in bucket {
                 self.process_query(l, r);
                 // [6] set ans !!!!!!!!!
-                ans[qi] = self.ng_cnt == 0;
+                // ans[qi] = self.pare_cnt == 0;
             }
         }
         // [7] return ans !!!!!!
@@ -132,7 +132,7 @@ fn main() {
         lrs: [(Usize1, usize); q]
     }
     let mut mo = Mo::new(&cl);
-    let ans = mo.process_all(lrs);
+    let ans = mo.process_all(&lrs);
     for &a in &ans {
         println!("{}", a);
     }

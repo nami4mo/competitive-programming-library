@@ -2,6 +2,7 @@
 from math import gcd
 def lcm(x, y): return (x * y) // gcd(x, y)
 
+
 ''' [分数] '''
 
 
@@ -17,6 +18,7 @@ class Frac:
     def __ge__(self, rh): return self.nume * rh.deno >= self.deno * rh.nume
     def __ne__(self, rh): return self.nume * rh.deno != self.deno * rh.nume
     def __repr__(self): return '{}/{}'.format(self.nume, self.deno)
+
 
 '''　[約数列挙]　'''
 n = 36

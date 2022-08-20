@@ -1,0 +1,4 @@
+tools/in/*
+tools/out/*
+__pycache__/
+*.db

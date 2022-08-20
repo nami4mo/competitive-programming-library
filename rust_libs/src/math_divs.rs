@@ -1,4 +1,5 @@
 #![allow(unused_imports)]
+#![allow(dead_code)]
 use itertools::Itertools;
 use num_integer::Roots;
 use proconio::marker::{Chars, Usize1};
